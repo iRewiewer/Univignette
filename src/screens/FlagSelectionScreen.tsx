@@ -22,7 +22,6 @@ const FlagSelectionScreen: React.FC = () => {
 
     return (
         <>
-            <Header title="Select Country" />
             <FlatList
                 data={vignetteCountries}
                 keyExtractor={(item) => item.code}
@@ -30,7 +29,6 @@ const FlagSelectionScreen: React.FC = () => {
                 numColumns={2}
                 contentContainerStyle={styles.container}
             />
-            <Footer text="Univignette © 2025" />
         </>
     );
 };

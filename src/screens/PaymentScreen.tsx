@@ -1,20 +1,19 @@
 import React from 'react';
-import { View, Text, StyleSheet, Platform } from 'react-native';
+import { View, StyleSheet, Platform } from 'react-native';
 import ApplePay from '../components/ApplePay';
 import GooglePayButton from '../components/GooglePay';
 
 const PaymentScreen: React.FC = () => {
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Select Payment Method</Text>
             {Platform.OS === 'ios' ? (
-                <ApplePay />
+                <ApplePay onPaymentSuccess={() => { }} onPaymentError={() => { }} />
             ) : Platform.OS === 'android' ? (
-                <GooglePayButton />
+                <GooglePayButton onPaymentSuccess={() => { }} onPaymentError={() => { }} />
             ) : (
                 <View style={styles.row}>
-                    <ApplePay />
-                    <GooglePayButton />
+                    <ApplePay onPaymentSuccess={() => { }} onPaymentError={() => { }} />
+                    <GooglePayButton onPaymentSuccess={() => { }} onPaymentError={() => { }} />
                 </View>
             )}
         </View>

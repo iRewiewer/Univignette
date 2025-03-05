@@ -1,11 +1,16 @@
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { TouchableOpacity, Text, StyleSheet, Platform } from 'react-native';
 import GooglePay from 'react-native-google-pay';
+
+interface Props {
+    onPaymentSuccess: (token: any) => void;
+    onPaymentError: (error: any) => void;
+}
 
 const allowedCardNetworks = ['VISA', 'MASTERCARD'];
 const allowedCardAuthMethods = ['PAN_ONLY', 'CRYPTOGRAM_3DS'];
 
-const GooglePayButton: React.FC = () => {
+const GooglePayButton: React.FC<Props> = ({ onPaymentSuccess, onPaymentError }) => {
     const handleGooglePay = () => {
         const requestData = {
             cardPaymentMethod: {
@@ -13,7 +18,7 @@ const GooglePayButton: React.FC = () => {
                     type: 'PAYMENT_GATEWAY',
                     parameters: {
                         gateway: 'stripe',
-                        'stripe:publishableKey': 'your-publishable-key',
+                        'stripe:publishableKey': 'your-publishable-key', // Replace with your key
                         'stripe:version': '2018-11-08',
                     },
                 },
@@ -28,6 +33,7 @@ const GooglePayButton: React.FC = () => {
             merchantName: 'Your Merchant Name',
         };
 
+        // Set environment to test mode.
         GooglePay.setEnvironment(GooglePay.ENVIRONMENT_TEST);
 
         GooglePay.isReadyToPay(allowedCardNetworks, allowedCardAuthMethods)
@@ -36,9 +42,11 @@ const GooglePayButton: React.FC = () => {
                     GooglePay.requestPayment(requestData)
                         .then((token: any) => {
                             console.log('GooglePay token:', token);
+                            onPaymentSuccess(token);
                         })
                         .catch((error: any) => {
                             console.warn('GooglePay error:', error);
+                            onPaymentError(error);
                         });
                 } else {
                     console.warn('Google Pay is not available on this device');
@@ -46,9 +54,13 @@ const GooglePayButton: React.FC = () => {
             });
     };
 
+    if (Platform.OS !== 'android') {
+        return null;
+    }
+
     return (
         <TouchableOpacity style={styles.button} onPress={handleGooglePay}>
-            <Text style={styles.buttonText}>GooglePay</Text>
+            <Text style={styles.buttonText}>Google Pay</Text>
         </TouchableOpacity>
     );
 };
@@ -60,10 +72,12 @@ const styles = StyleSheet.create({
         paddingHorizontal: 30,
         borderRadius: 10,
         marginVertical: 10,
+        alignItems: 'center',
     },
     buttonText: {
         color: '#fff',
         fontSize: 18,
+        fontWeight: 'bold',
     },
 });
 

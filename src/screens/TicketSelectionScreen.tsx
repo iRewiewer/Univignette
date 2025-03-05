@@ -1,12 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { RouteProp, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { Country, vignetteCountries } from '../constants/Countries';
 import { tickets as ticketsData } from '../constants/Tickets';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
 import { RootStackParamList } from '../navigation/AppNavigator';
 
 type TicketSelectionScreenRouteProp = RouteProp<RootStackParamList, 'TicketSelection'>;
@@ -23,7 +21,18 @@ const TicketSelectionScreen: React.FC<Props> = ({ route }) => {
     const navigation = useNavigation<NavigationProp>();
     const { countryCode } = route.params;
     const country = getCountryByCode(countryCode);
+
+    // Update the native title dynamically once the country is loaded.
+    useEffect(() => {
+        if (country) {
+            navigation.setOptions({ title: `Select Ticket for ${country.name}` });
+        }
+    }, [navigation, country]);
+
+    // Retrieve ticket info for the selected country.
     const countryTickets = ticketsData[countryCode];
+
+    // Convert tickets object into an array for FlatList.
     const ticketOptions = countryTickets
         ? Object.entries(countryTickets.tickets).map(([ticketType, ticket]) => ({
             ticketType,
@@ -49,7 +58,6 @@ const TicketSelectionScreen: React.FC<Props> = ({ route }) => {
 
     return (
         <View style={styles.screenContainer}>
-            <Header title={`Ticket Selection for ${country?.name || ''}`} />
             <FlatList
                 data={ticketOptions}
                 keyExtractor={(item) => item.ticketType}
@@ -57,7 +65,6 @@ const TicketSelectionScreen: React.FC<Props> = ({ route }) => {
                 numColumns={2}
                 contentContainerStyle={styles.ticketContainer}
             />
-            <Footer text="Univignette © 2025" />
         </View>
     );
 };

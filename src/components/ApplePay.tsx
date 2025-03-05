@@ -1,13 +1,26 @@
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet } from 'react-native';
+import {
+    TouchableOpacity,
+    StyleSheet,
+    Platform,
+    requireNativeComponent,
+    View,
+} from 'react-native';
 import { PaymentRequest } from 'react-native-payments';
 
-const ApplePay: React.FC = () => {
+interface Props {
+    onPaymentSuccess: (paymentResponse: any) => void;
+    onPaymentError: (error: any) => void;
+}
+
+const NativeApplePayButton = Platform.OS === 'ios' ? requireNativeComponent('PKPaymentButton') : null;
+
+const ApplePay: React.FC<Props> = ({ onPaymentSuccess, onPaymentError }) => {
     const handleApplePay = () => {
         const methodData = [{
             supportedMethods: ['apple-pay'],
             data: {
-                merchantIdentifier: 'merchant.com.your.id',
+                merchantIdentifier: 'merchant.com.your.id', // Replace with your merchant ID
                 supportedNetworks: ['visa', 'mastercard', 'amex'],
                 countryCode: 'US',
                 currencyCode: 'USD',
@@ -15,23 +28,23 @@ const ApplePay: React.FC = () => {
                     tokenizationType: 'PAYMENT_GATEWAY',
                     parameters: {
                         gateway: 'stripe',
-                        'stripe:publishableKey': 'your-publishable-key',
-                        'stripe:version': '2018-11-08'
-                    }
-                }
-            }
+                        'stripe:publishableKey': 'your-publishable-key', // Replace with your key
+                        'stripe:version': '2018-11-08',
+                    },
+                },
+            },
         }];
 
         const details = {
             id: 'vignette-ticket',
             displayItems: [{
                 label: 'Vignette Ticket',
-                amount: { currency: 'USD', value: '10.00' }
+                amount: { currency: 'USD', value: '10.00' },
             }],
             total: {
                 label: 'Your Merchant Name',
-                amount: { currency: 'USD', value: '10.00' }
-            }
+                amount: { currency: 'USD', value: '10.00' },
+            },
         };
 
         const paymentRequest = new PaymentRequest(methodData, details);
@@ -39,31 +52,35 @@ const ApplePay: React.FC = () => {
         paymentRequest.show()
             .then((paymentResponse: any) => {
                 console.log('ApplePay response:', paymentResponse);
+                onPaymentSuccess(paymentResponse);
                 paymentResponse.complete('success');
             })
             .catch((error: any) => {
                 console.warn('ApplePay error:', error);
+                onPaymentError(error);
             });
     };
 
+    if (Platform.OS !== 'ios' || !NativeApplePayButton) {
+        return null;
+    }
+
     return (
-        <TouchableOpacity style={styles.button} onPress={handleApplePay}>
-            <Text style={styles.buttonText}>ApplePay</Text>
+        <TouchableOpacity style={styles.container} onPress={handleApplePay}>
+            <View style={styles.nativeButton}>
+                <NativeApplePayButton />
+            </View>
         </TouchableOpacity>
     );
 };
 
 const styles = StyleSheet.create({
-    button: {
-        backgroundColor: '#007aff',
-        paddingVertical: 15,
-        paddingHorizontal: 30,
-        borderRadius: 10,
-        marginVertical: 10,
+    container: {
+        // Optional styling for the container
     },
-    buttonText: {
-        color: '#fff',
-        fontSize: 18,
+    nativeButton: {
+        width: 200,
+        height: 44,
     },
 });
 

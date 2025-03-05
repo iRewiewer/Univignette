@@ -36,7 +36,7 @@ const AppNavigator: React.FC = () => {
                 <Stack.Screen
                     name="Payment"
                     component={PaymentScreen}
-                    options={{ title: 'Payment' }}
+                    options={{ title: 'Select Payment Option' }}
                 />
             </Stack.Navigator>
         </NavigationContainer>
